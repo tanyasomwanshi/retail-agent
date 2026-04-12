@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Retail Agent</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 { color: #2c3e50; }
+        p { color: #7f8c8d; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            outline: none;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #3498db; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        #loading {
+            display: none;
+            text-align: center;
+            color: #d35400;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .report-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            white-space: pre-wrap; /* Keeps the text formatting */
+            display: none;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🤖 Autonomous Retail Researcher</h1>
+        <p>Give the AI a topic. It will search the web, analyze data, and write a CEO-ready report.</p>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="topicInput" placeholder="e.g., How is AR being used in sneaker retail in 2026?">
+        <button id="searchBtn" onclick="generateReport()">Generate Report</button>
+    </div>
+
+    <div id="loading">⏳ The Agents are researching the live internet... This usually takes 30-45 seconds.</div>
+
+    <div class="report-box" id="reportOutput"></div>
+
+    <script>
+        async function generateReport() {
+            const topic = document.getElementById('topicInput').value;
+            const btn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const output = document.getElementById('reportOutput');
+
+            if (!topic) { alert("Please enter a topic!"); return; }
+
+            // UI Updates: Disable button, show loading
+            btn.disabled = true;
+            loading.style.display = 'block';
+            output.style.display = 'none';
+
+            try {
+                // Call our FastAPI Python Backend
+                const response = await fetch("http://127.0.0.1:8000/research", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic: topic })
+                });
+
+                const data = await response.json();
+                
+                // Display Result
+                output.innerText = data.report;
+                output.style.display = 'block';
+            } catch (error) {
+                output.innerText = "An error occurred. Check your terminal to ensure the server is running!";
+                output.style.display = 'block';
+            } finally {
+                // Reset UI
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
